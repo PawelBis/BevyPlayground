@@ -1,5 +1,5 @@
-use bevy::prelude::*;
 use crate::movement::MoveDirection;
+use bevy::prelude::*;
 
 #[derive(Component)]
 pub struct PlayerController;
@@ -30,4 +30,3 @@ pub fn input_system(
         *md = MoveDirection(input_direction);
     }
 }
-

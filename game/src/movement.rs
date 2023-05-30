@@ -26,7 +26,6 @@ impl Display for MoveDirection {
     }
 }
 
-
 /// Update positions based on MoveDirection and MoveSpeed components
 pub fn movement_system(
     mut query: Query<(&mut Transform, &MoveDirection, &MoveSpeed)>,
@@ -37,4 +36,3 @@ pub fn movement_system(
         transform.translation += move_vector * time.delta_seconds();
     }
 }
-
