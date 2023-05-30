@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 
+pub mod animation;
 pub mod input;
 pub mod movement;
 
@@ -9,6 +10,7 @@ fn main() {
         .add_startup_system(setup)
         .add_system(input::input_system)
         .add_system(movement::movement_system)
+        .add_system(animation::animation_system)
         .run();
 }
 
@@ -31,5 +33,12 @@ fn setup(
         })
         .insert(input::PlayerController)
         .insert(movement::MoveSpeed(50.))
-        .insert(movement::MoveDirection::default());
+        .insert(movement::MoveDirection::default())
+        .insert(animation::AnimationTimer(Timer::from_seconds(1., TimerMode::Repeating)))
+        .insert(animation::Animation {
+            length: 1.,
+            first_frame: 0,
+            frame_count: 4,
+            looping: true,
+        });
 }
