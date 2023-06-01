@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use crate::animation::AnimationPlayerLoader;
 
 pub mod animation;
 pub mod input;
@@ -8,6 +9,9 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .add_startup_system(setup)
+        .add_startup_system(setup_animation_player.after(setup))
+        .add_asset::<animation::AnimationPlayer>()
+        .init_asset_loader::<AnimationPlayerLoader>()
         .add_system(input::input_system)
         .add_system(movement::movement_system)
         .add_system(animation::animation_system)
@@ -37,8 +41,23 @@ fn setup(
         .insert(animation::AnimationTimer(Timer::from_seconds(1., TimerMode::Repeating)))
         .insert(animation::Animation {
             length: 1.,
-            first_frame: 0,
-            frame_count: 4,
+            first_frame: 2,
+            frame_count: 2,
             looping: true,
         });
+}
+
+fn setup_animation_player(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut query: Query<Entity, With<input::PlayerController>>,
+    animation_players: ResMut<Assets<animation::AnimationPlayer>>,
+) {
+    let animation_player: Handle<animation::AnimationPlayer> = asset_server.load("adventurer.ron");
+    let ap = animation_players.get(&animation_player);
+    info!("{:?}", ap);
+
+    for entity in query.iter_mut() {
+        //commands.entity(entity).insert(ap.clone());
+    }
 }

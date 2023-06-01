@@ -1,0 +1,11 @@
+AnimationPlayer(
+    source_sprite: "adventurer.png",
+    animations: {
+        "idle": Animation(
+            length: 1.0,
+            first_frame: 0,
+            frame_count: 1,
+            looping: true,
+        ),
+    }
+)
