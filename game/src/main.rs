@@ -9,7 +9,7 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .add_startup_system(setup)
-        .add_startup_system(setup_animation_player.after(setup))
+        .add_system(setup_animation_player)
         .add_asset::<animation::AnimationPlayer>()
         .init_asset_loader::<AnimationPlayerLoader>()
         .add_system(input::input_system)
