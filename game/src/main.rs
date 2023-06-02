@@ -1,5 +1,5 @@
-use bevy::prelude::*;
 use crate::animation::AnimationPlayerLoader;
+use bevy::prelude::*;
 
 pub mod animation;
 pub mod input;
@@ -38,7 +38,10 @@ fn setup(
         .insert(input::PlayerController)
         .insert(movement::MoveSpeed(50.))
         .insert(movement::MoveDirection::default())
-        .insert(animation::AnimationTimer(Timer::from_seconds(1., TimerMode::Repeating)))
+        .insert(animation::AnimationTimer(Timer::from_seconds(
+            1.,
+            TimerMode::Repeating,
+        )))
         .insert(animation::Animation {
             length: 1.,
             first_frame: 2,

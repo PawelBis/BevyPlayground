@@ -2,6 +2,7 @@ use bevy::asset::{AssetLoader, BoxedFuture, Error, LoadContext, LoadedAsset};
 use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
 use serde::Deserialize;
+use crate::assets::asset_store::AssetStore;
 use std::collections::HashMap;
 
 /// Component used for frame time tracking
@@ -12,7 +13,7 @@ pub struct AnimationTimer(pub Timer);
 /// to repeat on finish.
 /// Requires a valid `TextureAtlas` and `AnimationTimer`
 #[derive(Component, Debug, Deserialize, Clone)]
-pub struct Animation {
+pub struct SpriteAnimation {
     /// Determines length and frame time of the animation
     /// frame_time = length / (last_frame - first_frame)
     pub length: f32,
@@ -24,7 +25,7 @@ pub struct Animation {
     pub looping: bool,
 }
 
-impl Animation {
+impl SpriteAnimation {
     fn last_frame(&self) -> u8 {
         self.first_frame + self.frame_count
     }
@@ -33,22 +34,28 @@ impl Animation {
 /// Stores data about the animations and provides an interface for animations manipulation
 #[derive(Component, Debug, Deserialize, TypeUuid, Clone)]
 #[uuid = "3072233a-9066-44dc-9d21-03e361a3c1f8"]
-pub struct AnimationPlayer {
+pub struct AnimationDescriptor {
     pub source_sprite: String,
-    pub animations: HashMap<String, Animation>,
+    pub animations: HashMap<String, SpriteAnimation>,
+    pub frame_size: Vec2,
+    pub columns: u8,
+    pub rows: u8,
+    /// Handle to texture atlas tied to this AnimationDescriptor
+    #[serde(skip_serializing)]
+    pub atlas_handle: Option<Handle<TextureAtlas>>,
 }
 
 #[derive(Default)]
-pub struct AnimationPlayerLoader;
+pub struct AnimationDescriptorLoader;
 
-impl AssetLoader for AnimationPlayerLoader {
+impl AssetLoader for AnimationDescriptorLoader {
     fn load<'a>(
         &'a self,
         bytes: &'a [u8],
         load_context: &'a mut LoadContext,
     ) -> BoxedFuture<'a, anyhow::Result<(), Error>> {
         Box::pin(async move {
-            let animation_player = ron::de::from_bytes::<AnimationPlayer>(bytes)?;
+            let animation_player = ron::de::from_bytes::<AnimationDescriptor>(bytes)?;
             load_context.set_default_asset(LoadedAsset::new(animation_player));
             Ok(())
         })
@@ -60,9 +67,13 @@ impl AssetLoader for AnimationPlayerLoader {
 }
 
 /// System responsible for advancing `AnimationTimer` and flipping sprite sheet
-pub fn animation_system(
+pub fn sprite_animation_system(
     time: Res<Time>,
-    mut query: Query<(&Animation, &mut AnimationTimer, &mut TextureAtlasSprite)>,
+    mut query: Query<(
+        &SpriteAnimation,
+        &mut AnimationTimer,
+        &mut TextureAtlasSprite,
+    )>,
 ) {
     for (animation, mut timer, mut atlas) in query.iter_mut() {
         timer.tick(time.delta());

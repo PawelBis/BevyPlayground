@@ -7,5 +7,8 @@ AnimationPlayer(
             frame_count: 1,
             looping: true,
         ),
-    }
+    },
+    frame_size: (50., 37.),
+    columns: 7,
+    rows: 11,
 )
