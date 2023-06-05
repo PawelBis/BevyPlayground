@@ -2,7 +2,6 @@ use bevy::asset::{AssetLoader, BoxedFuture, Error, LoadContext, LoadedAsset};
 use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
 use serde::Deserialize;
-use crate::assets::asset_store::AssetStore;
 use std::collections::HashMap;
 
 /// Component used for frame time tracking
@@ -41,7 +40,7 @@ pub struct AnimationDescriptor {
     pub columns: u8,
     pub rows: u8,
     /// Handle to texture atlas tied to this AnimationDescriptor
-    #[serde(skip_serializing)]
+    #[serde(skip_serializing, skip_deserializing)]
     pub atlas_handle: Option<Handle<TextureAtlas>>,
 }
 

@@ -51,16 +51,16 @@ fn setup(
 }
 
 fn setup_animation_player(
-    mut commands: Commands,
+    // mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut query: Query<Entity, With<input::PlayerController>>,
+    // mut query: Query<Entity, With<input::PlayerController>>,
     animation_players: ResMut<Assets<animation::AnimationPlayer>>,
 ) {
     let animation_player: Handle<animation::AnimationPlayer> = asset_server.load("adventurer.ron");
     let ap = animation_players.get(&animation_player);
     info!("{:?}", ap);
 
-    for entity in query.iter_mut() {
-        //commands.entity(entity).insert(ap.clone());
-    }
+    // for entity in query.iter_mut() {
+    //     commands.entity(entity).insert(ap.clone());
+    // }
 }

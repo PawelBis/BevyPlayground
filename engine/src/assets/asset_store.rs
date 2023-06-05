@@ -18,13 +18,14 @@ pub struct AssetStore {
 /// Go through `AnimationDescriptorLoadQueue` and load all pending assets
 pub fn animation_descriptor_loader(
     mut load_queue: ResMut<AnimationDescriptorLoadQueue>,
-    asset_store: ResMut<AssetStore>,
+    mut asset_store: ResMut<AssetStore>,
     asset_server: Res<AssetServer>,
 ) {
-    for animation_path in &load_queue.queue.into_iter() {
+    for animation_path in &load_queue.queue {
         let adventurer_handle: Handle<AnimationDescriptor> = asset_server.load(animation_path);
-        asset_store.animation_descriptors.insert(animation_path, adventurer_handle);
+        asset_store.animation_descriptors.insert(animation_path.clone(), adventurer_handle);
     }
+    load_queue.queue.clear();
 }
 
 /// Load sprites used by `SpriteAnimationPlayer` and create corresponding `TextureAtlas`
