@@ -1,7 +1,7 @@
-AnimationPlayer(
+AnimationDescriptor(
     source_sprite: "adventurer.png",
     animations: {
-        "idle": Animation(
+        "idle": SpriteAnimation(
             length: 1.0,
             first_frame: 0,
             frame_count: 1,

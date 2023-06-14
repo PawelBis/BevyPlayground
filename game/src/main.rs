@@ -1,5 +1,7 @@
 use crate::animation::AnimationPlayerLoader;
 use bevy::prelude::*;
+use engine::assets::animation_descriptor::{AnimationDescriptor, AnimationDescriptorLoader};
+use engine::assets::asset_store::{animation_descriptor_loader, animation_sprite_sheet_loader, AnimationDescriptorLoadQueue, AssetStore};
 
 pub mod animation;
 pub mod input;
@@ -8,10 +10,15 @@ pub mod movement;
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+        .insert_resource(AssetStore::default())
+        .insert_resource(AnimationDescriptorLoadQueue {
+            queue: vec!["adventurer.ron".to_owned()],
+        })
         .add_startup_system(setup)
-        .add_system(setup_animation_player)
-        .add_asset::<animation::AnimationPlayer>()
-        .init_asset_loader::<AnimationPlayerLoader>()
+        .add_asset::<AnimationDescriptor>()
+        .init_asset_loader::<AnimationDescriptorLoader>()
+        .add_system(animation_descriptor_loader)
+        .add_system(animation_sprite_sheet_loader.after(animation_descriptor_loader))
         .add_system(input::input_system)
         .add_system(movement::movement_system)
         .add_system(animation::animation_system)
@@ -48,19 +55,4 @@ fn setup(
             frame_count: 2,
             looping: true,
         });
-}
-
-fn setup_animation_player(
-    // mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    // mut query: Query<Entity, With<input::PlayerController>>,
-    animation_players: ResMut<Assets<animation::AnimationPlayer>>,
-) {
-    let animation_player: Handle<animation::AnimationPlayer> = asset_server.load("adventurer.ron");
-    let ap = animation_players.get(&animation_player);
-    info!("{:?}", ap);
-
-    // for entity in query.iter_mut() {
-    //     commands.entity(entity).insert(ap.clone());
-    // }
 }

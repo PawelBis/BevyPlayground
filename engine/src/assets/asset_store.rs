@@ -10,8 +10,9 @@ pub struct AnimationDescriptorLoadQueue {
     pub queue: Vec<String>,
 }
 
-#[derive(Resource)]
+#[derive(Resource, Default)]
 pub struct AssetStore {
+    // Add wrapper handling fully and partially loaded assets
     pub animation_descriptors: HashMap<String, Handle<AnimationDescriptor>>,
 }
 
@@ -24,6 +25,7 @@ pub fn animation_descriptor_loader(
     for animation_path in &load_queue.queue {
         let adventurer_handle: Handle<AnimationDescriptor> = asset_server.load(animation_path);
         asset_store.animation_descriptors.insert(animation_path.clone(), adventurer_handle);
+        info!("Loading {animation_path}");
     }
     load_queue.queue.clear();
 }
@@ -36,28 +38,26 @@ pub fn animation_sprite_sheet_loader(
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
 ) {
     for animation_descriptor_handle in asset_store.animation_descriptors.values() {
-        match asset_server.get_load_state(animation_descriptor_handle) {
-            LoadState::Loaded => {
-                let mut animation_descriptor = animation_descriptors
-                    .get_mut(animation_descriptor_handle)
-                    .expect("Asset is loaded, we checked the state");
-                let texture_h = asset_server.load(&animation_descriptor.source_sprite);
-                let texture_atlas = TextureAtlas::from_grid(
-                    texture_h,
-                    animation_descriptor.frame_size,
-                    animation_descriptor.columns as usize,
-                    animation_descriptor.rows as usize,
-                    None,
-                    None,
-                );
-                let atlas_h = texture_atlases.add(texture_atlas);
-                animation_descriptor.atlas_handle = Some(atlas_h);
-            }
-            // TODO: Remove handles that failed to load
-            LoadState::Failed => {
+        if asset_server.get_load_state(animation_descriptor_handle) == LoadState::Loaded {
+            let mut animation_descriptor = animation_descriptors
+                .get_mut(animation_descriptor_handle)
+                .expect("Asset is loaded, we checked the state");
 
+            if animation_descriptor.atlas_handle.is_some() {
+                return;
             }
-            _ => {}
+            info!("Loading sprite");
+            let texture_h = asset_server.load(&animation_descriptor.source_sprite);
+            let texture_atlas = TextureAtlas::from_grid(
+                texture_h,
+                animation_descriptor.frame_size,
+                animation_descriptor.columns as usize,
+                animation_descriptor.rows as usize,
+                None,
+                None,
+            );
+            let atlas_h = texture_atlases.add(texture_atlas);
+            animation_descriptor.atlas_handle = Some(atlas_h);
         }
     }
 }
